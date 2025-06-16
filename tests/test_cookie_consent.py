@@ -1,6 +1,7 @@
 import pytest
 from playwright.sync_api import expect, TimeoutError, sync_playwright
 from pages.cookie_settings_page import CookieSettingsPage
+import random
 
 def test_accep(page):
     page.goto("https://www.pracuj.pl/")
@@ -44,9 +45,9 @@ def test_anty_antybot(page):
 
     # Ruchy myszy dla maskowania
     page.mouse.move(100, 100)
-    page.wait_for_timeout(1000)
-    page.mouse.move(150, 200)
-    page.wait_for_timeout(1000)
+    page.wait_for_timeout(500 + random.randint(0, 300))
+    page.mouse.move(200, 300)
+    page.wait_for_timeout(1000 + random.randint(0, 500))
 
     expect(page.get_by_role("button", name="Dostosuj")).to_be_visible(timeout=60000)
 
