@@ -23,8 +23,7 @@ jobs:
           PYTHONPATH: .
         id: run-tests
         continue-on-error: true
-        run: pytest tests/test_cookie_consent.py --mybrowser=${{ matrix.browser }} --isheaded=false
-
+        run: pytest tests/test_cookie_consent.py --mybrowser=${{ matrix.browser }} --isheaded=false --html=report_${{ matrix.browser }}.html --self-contained-html
       # Upload artefaktów tylko jeśli test się nie powiódł
       - name: Upload test artifacts if failed
         if: failure()
@@ -34,3 +33,4 @@ jobs:
           path: |
             error_screenshot.png
             error_dom.html
+            report_${{ matrix.browser }}.html
