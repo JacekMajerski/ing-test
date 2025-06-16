@@ -9,7 +9,6 @@ def test_accep(page):
 
 def test_debug_ing_home(page):
     page.goto("https://www.ing.pl", timeout=60000)
-    page.wait_for_load_state("networkidle", timeout=60000)
     page.wait_for_selector("body", timeout=60000)
 
     # Screenshot
@@ -28,8 +27,7 @@ def test_debug_ing_home(page):
 
 def test_accept_analytics_cookie(page):
     page.goto("https://www.ing.pl", timeout=60000)
-    page.wait_for_load_state("networkidle", timeout=60000)
-    page.wait_for_selector("body", timeout=60000)
+    page.wait_for_selector("#login-desktop", timeout=60000)
 
     print("TITLE:", page.title())
     print("URL:", page.url)
