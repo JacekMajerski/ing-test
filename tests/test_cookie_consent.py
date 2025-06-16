@@ -10,9 +10,7 @@ def test_accept_analytics_cookie(page):
     cookie_settings = CookieSettingsPage(page)
 
     try:
-        # Poczekaj na przycisk „Dostosuj” z timeoutem 60s i kliknij
-        page.get_by_role("button", name="Dostosuj").wait_for(timeout=60000)
-        cookie_settings.open_custom_settings(timeout=60000)
+        cookie_settings.open_custom_settings()
     except TimeoutError as e:
         # W razie błędu zrób screenshot i zapisz DOM
         page.screenshot(path="error_screenshot.png", full_page=True)
