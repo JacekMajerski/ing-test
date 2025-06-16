@@ -15,7 +15,7 @@ jobs:
           python-version: '3.10'
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
-      - name: Run tests on ${{ matrix.browser }} --headless
+      - name: Run tests on ${{ matrix.browser }} --headless=True
         env:
           PYTHONPATH: .
         run: pytest tests/test_cookie_consent.py --browser=${{ matrix.browser }}
