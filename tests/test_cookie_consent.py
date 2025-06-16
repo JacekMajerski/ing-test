@@ -1,8 +1,9 @@
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import expect
 from pages.cookie_settings_page import CookieSettingsPage
 
-def test_accept_analytics_cookie(page: Page):
+def test_accept_analytics_cookie(page):
+    page.goto("https://www.ing.pl")
     # Otwórz stronę główną ING
     page.goto("https://www.ing.pl")
 
