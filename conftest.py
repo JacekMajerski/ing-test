@@ -32,10 +32,14 @@ def page(browser_name, headed_mode):
 
         page = context.new_page()
 
-        # ❗Dodaj ukrycie `navigator.webdriver` – musi być przed `goto`
+        # Ukrywanie automatyzacji
         page.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            window.navigator.chrome = { runtime: {} };
+            Object.defineProperty(navigator, 'languages', { get: () => ['pl-PL', 'pl'] });
+            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
         """)
+
         yield page
         context.close()
         browser.close()

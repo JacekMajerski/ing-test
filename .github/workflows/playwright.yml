@@ -11,19 +11,28 @@ jobs:
     strategy:
       matrix:
         browser: [chromium]
+
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
+
       - name: Run tests on ${{ matrix.browser }}
         env:
           PYTHONPATH: .
         id: run-tests
-        run: pytest tests/test_cookie_consent.py --mybrowser=${{ matrix.browser }} --isheaded=false --html=report_${{ matrix.browser }}.html --self-contained-html
-      # Upload artefaktów tylko jeśli test się nie powiódł
+        run: |
+          pytest tests/test_cookie_consent.py \
+            --mybrowser=${{ matrix.browser }} \
+            --isheaded=false \
+            --html=report_${{ matrix.browser }}.html \
+            --self-contained-html
+
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -31,4 +40,6 @@ jobs:
           path: |
             error_screenshot.png
             error_dom.html
+            debug_screenshot.png
+            debug_dom.html
             report_${{ matrix.browser }}.html
