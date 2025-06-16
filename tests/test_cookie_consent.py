@@ -40,7 +40,7 @@ def test_accep(page):
 
 def test_anty_antybot(page):
     page.goto("https://www.ing.pl", timeout=60000)
-    page.wait_for_load_state("networkidle", timeout=60000)
+    page.wait_for_timeout(30000)
 
     # Ruchy myszy dla maskowania
     page.mouse.move(100, 100)
