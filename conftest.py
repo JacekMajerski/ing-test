@@ -22,7 +22,7 @@ def page(browser_name, headed_mode):
             viewport={"width": 1360, "height": 800},
             ignore_https_errors=True,
             locale="pl-PL",
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
             geolocation={"longitude": 21.0, "latitude": 52.2},
             permissions=["geolocation"]
         )
@@ -31,6 +31,11 @@ def page(browser_name, headed_mode):
         context.clear_permissions()
 
         page = context.new_page()
+
+        # ❗Dodaj ukrycie `navigator.webdriver` – musi być przed `goto`
+        page.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        """)
         yield page
         context.close()
         browser.close()
