@@ -8,6 +8,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -15,15 +18,19 @@ jobs:
           python-version: '3.10'
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
-      - name: Run Playwright tests with HTML report
+      - name: Run tests on ${{ matrix.browser }}
         env:
           PYTHONPATH: .
-        run: pytest --html=report.html --self-contained-html
-      - name: Upload test artifacts
+        id: run-tests
+        continue-on-error: true
+        run: pytest tests/test_cookie_consent.py --mybrowser=${{ matrix.browser }} --isheaded=false --html=report_${{ matrix.browser }}.html --self-contained-html
+      # Upload artefaktów tylko jeśli test się nie powiódł
+      - name: Upload test artifacts if failed
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-artifacts
+          name: test-artifacts-${{ matrix.browser }}
           path: |
-            report.html
-            error_screenshot_*.png
-            error_dom_*.html
+            error_screenshot.png
+            error_dom.html
+            report_${{ matrix.browser }}.html
