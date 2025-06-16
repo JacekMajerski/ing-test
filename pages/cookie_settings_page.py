@@ -1,0 +1,14 @@
+from playwright.sync_api import Page
+
+class CookieSettingsPage:
+    def __init__(self, page: Page):
+        self.page = page
+
+    def open_custom_settings(self):
+        self.page.get_by_role("button", name="Dostosuj").click()
+
+    def accept_analytics_and_confirm(self):
+        analytics_checkbox = self.page.get_by_label("Analityczne")
+        if not analytics_checkbox.is_checked():
+            analytics_checkbox.check()
+        self.page.get_by_role("button", name="Zaakceptuj zaznaczone").click()
