@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Playwright Tests ING
 
 on: [push, pull_request]
 
@@ -15,4 +15,7 @@ jobs:
           python-version: '3.10'
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
-      - run: pytest tests/test_cookie_consent.py --browser=${{ matrix.browser }}
+      - name: Run tests on ${{ matrix.browser }}
+        env:
+          PYTHONPATH: .
+        run: pytest tests/test_cookie_consent.py --browser=${{ matrix.browser }}
