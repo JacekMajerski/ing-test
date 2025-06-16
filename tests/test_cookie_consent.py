@@ -4,11 +4,10 @@ from pages.cookie_settings_page import CookieSettingsPage
 
 def test_accept_analytics_cookie(page):
     page.goto("https://www.ing.pl")
-    # Otwórz stronę główną ING
-    page.context.clear_cookies()
-    page.reload()
-    page.goto("https://www.ing.pl")
+    page.wait_for_load_state("networkidle")
 
+    # debug - screenshot
+    page.screenshot(path="screenshot.png", full_page=True)
     # Zainicjalizuj obiekt strony do obsługi ustawień ciasteczek (Page Object)
     cookie_settings = CookieSettingsPage(page)
 
