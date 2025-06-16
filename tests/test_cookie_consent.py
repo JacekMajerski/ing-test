@@ -38,29 +38,17 @@ def test_accep(page):
 #     assert policy_cookie["value"] == "3", f"Oczekiwano 'cookiePolicyGDPR' z wartością '3', otrzymano: {policy_cookie['value']}"
 
 
-def test_anty_antybot():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
-(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            locale="pl-PL"
-        )
-        page = context.new_page()
-        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        page.goto("https://www.ing.pl", timeout=60000)
+def test_anty_antybot(page):
+    page.goto("https://www.ing.pl", timeout=60000)
+    page.wait_for_load_state("networkidle", timeout=60000)
 
-        # "Ludzkie" zachowanie
-        page.mouse.move(100, 100)
-        page.wait_for_timeout(1000)
-        page.mouse.move(150, 200)
-        page.wait_for_timeout(1000)
+    # Ruchy myszy dla maskowania
+    page.mouse.move(100, 100)
+    page.wait_for_timeout(1000)
+    page.mouse.move(150, 200)
+    page.wait_for_timeout(1000)
 
-        page.screenshot(path="antybot_screenshot.png", full_page=True)
-        print("Tytuł strony:", page.title())
-        cookie_settings = CookieSettingsPage(page)
-        cookie_settings.open_custom_settings()
+    expect(page.get_by_role("button", name="Dostosuj")).to_be_visible(timeout=60000)
 
-
-        context.close()
-        browser.close()
+    cookie_settings = CookieSettingsPage(page)
+    cookie_settings.open_custom_settings()

@@ -2,8 +2,8 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 def pytest_addoption(parser):
-    parser.addoption("--mybrowser", action="store", default="chromium", help="Przeglądarka: chromium, firefox, webkit")
-    parser.addoption("--isheaded", action="store", default="false", help="Tryb headed: true/false")
+    parser.addoption("--mybrowser", action="store", default="chromium")
+    parser.addoption("--isheaded", action="store", default="false")
 
 @pytest.fixture(scope="session")
 def browser_name(pytestconfig):
@@ -32,12 +32,21 @@ def page(browser_name, headed_mode):
 
         page = context.new_page()
 
-        # Ukrywanie automatyzacji
         page.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
             window.navigator.chrome = { runtime: {} };
             Object.defineProperty(navigator, 'languages', { get: () => ['pl-PL', 'pl'] });
             Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+
+            const originalQuery = window.navigator.permissions.query;
+            window.navigator.permissions.query = (parameters) => (
+              parameters.name === 'notifications' ?
+                Promise.resolve({ state: Notification.permission }) :
+                originalQuery(parameters)
+            );
+
+            Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+            Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 0 });
         """)
 
         yield page
