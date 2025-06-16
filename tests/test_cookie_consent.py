@@ -1,55 +1,37 @@
 import pytest
 from playwright.sync_api import expect, TimeoutError, sync_playwright
 from pages.cookie_settings_page import CookieSettingsPage
-import random
+import random, requests
 
-def test_accep(page):
-    page.goto("https://www.pracuj.pl/")
-    expect(page.locator('[data-test="button-submitCookie"]')).to_be_visible(timeout=60000)
+def get_poland_proxies():
+    url = "https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&country=PL&timeout=5000&anonymity=elite"
+    resp = requests.get(url, timeout=10)
+    return [p.strip() for p in resp.text.splitlines() if p.strip()]
 
+def test_anty_antybot_with_proxy(page, browser_name):
+    # Wybierz losowe PL proxy, jeśli dostępne
+    proxies = get_poland_proxies()
+    proxy = random.choice(proxies) if proxies else None
 
-# def test_accept_analytics_cookie(page):
-#     page.goto("https://www.ing.pl", timeout=60000)
-#
-#     print("TITLE:", page.title())
-#     print("URL:", page.url)
-#
-#     page.screenshot(path="error_screenshot.png", full_page=True)
-#     with open("error_dom.html", "w", encoding="utf-8") as f:
-#         f.write(f"<h1>{page.title()}</h1><p>{page.url}</p>")
-#         f.write(page.content())
-#
-#     expect(page.locator("#login-desktop")).to_be_visible(timeout=60000)
-#
-#     cookie_settings = CookieSettingsPage(page)
-#
-#     try:
-#         cookie_settings.open_custom_settings()
-#     except TimeoutError as e:
-#         page.screenshot(path="error_screenshot.png", full_page=True)
-#         with open("error_dom.html", "w", encoding="utf-8") as f:
-#             f.write(page.content())
-#         raise e
-#
-#     cookie_settings.accept_analytics_and_confirm()
-#
-#     cookies = page.context.cookies()
-#     policy_cookie = next((c for c in cookies if c["name"] == "cookiePolicyGDPR"), None)
-#     assert policy_cookie is not None, "Brak ciasteczka 'cookiePolicyGDPR'."
-#     assert policy_cookie["value"] == "3", f"Oczekiwano 'cookiePolicyGDPR' z wartością '3', otrzymano: {policy_cookie['value']}"
-
-
-def test_anty_antybot(page):
+    # Otwórz nowy browser/context z proxy
+    browser = page.context.browser
+    browser.launch(
+        headless=False,
+        proxy={"server": f"http://{proxy}"} if proxy else None
+    )
     page.goto("https://www.ing.pl", timeout=60000)
-    page.wait_for_timeout(30000)
+    page.wait_for_timeout(5000)
 
-    # Ruchy myszy dla maskowania
+    # Maskowanie ruchów myszy
     page.mouse.move(100, 100)
-    page.wait_for_timeout(500 + random.randint(0, 300))
+    page.wait_for_timeout(1000 + random.randint(0, 200))
     page.mouse.move(200, 300)
     page.wait_for_timeout(1000 + random.randint(0, 500))
 
     expect(page.get_by_role("button", name="Dostosuj")).to_be_visible(timeout=60000)
+    CookieSettingsPage(page).open_custom_settings()
 
-    cookie_settings = CookieSettingsPage(page)
-    cookie_settings.open_custom_settings()
+@pytest.mark.usefixtures("page")
+def test_accep(page):
+    page.goto("https://www.pracuj.pl/")
+    expect(page.locator('[data-test="button-submitCookie"]')).to_be_visible(timeout=60000)
