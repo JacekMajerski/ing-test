@@ -18,4 +18,4 @@ jobs:
       - name: Run tests on ${{ matrix.browser }}
         env:
           PYTHONPATH: .
-        run: pytest tests/test_cookie_consent.py -- --browser=${{ matrix.browser }}
+        run: pytest tests/test_cookie_consent.py -- --mybrowser=${{ matrix.browser }} --headed=false

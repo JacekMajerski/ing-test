@@ -2,12 +2,12 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 def pytest_addoption(parser):
-    parser.addoption("--browser", action="store", default="chromium", help="Przeglądarka: chromium, firefox, webkit")
+    parser.addoption("--mybrowser", action="store", default="chromium", help="Przeglądarka: chromium, firefox, webkit")
     parser.addoption("--headed", action="store", default="false", help="Tryb headed: true/false")
 
 @pytest.fixture(scope="session")
 def browser_name(pytestconfig):
-    return pytestconfig.getoption("--browser")
+    return pytestconfig.getoption("--mybrowser")
 
 @pytest.fixture(scope="session")
 def headed_mode(pytestconfig):
