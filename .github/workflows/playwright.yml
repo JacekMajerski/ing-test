@@ -1,6 +1,9 @@
 name: Playwright Tests ING
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
