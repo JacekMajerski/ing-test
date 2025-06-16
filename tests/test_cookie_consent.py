@@ -7,6 +7,8 @@ def test_accep(page):
 
 def test_accept_analytics_cookie(page):
     page.goto("https://www.ing.pl")
+    print("TITLE:", page.title())
+    print("URL:", page.url)
     page.wait_for_load_state("load", timeout=60000)
     expect(page.locator("#login-desktop")).to_be_visible(timeout=60000)
 
