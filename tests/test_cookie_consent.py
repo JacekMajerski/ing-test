@@ -4,7 +4,7 @@ from pages.cookie_settings_page import CookieSettingsPage
 
 def test_accept_analytics_cookie(page):
     page.goto("https://www.ing.pl")
-    page.wait_for_load_state("networkidle", timeout=60000)
+    page.wait_for_load_state("load", timeout=60000)
 
     # Inicjalizacja strony obsługi ciasteczek
     cookie_settings = CookieSettingsPage(page)
