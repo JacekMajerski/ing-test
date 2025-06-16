@@ -25,7 +25,7 @@ def page(browser_name, headed_mode):
 
         # Utwórz incognito (czysty) kontekst
         context = browser.new_context(
-            viewport={"width": 1280, "height": 800},
+            viewport={"width": 1360, "height": 800},
             ignore_https_errors=True,
         )
 
