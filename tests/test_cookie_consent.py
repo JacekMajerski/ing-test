@@ -5,6 +5,8 @@ from pages.cookie_settings_page import CookieSettingsPage
 def test_accept_analytics_cookie(page):
     page.goto("https://www.ing.pl")
     # Otwórz stronę główną ING
+    page.context.clear_cookies()
+    page.reload()
     page.goto("https://www.ing.pl")
 
     # Zainicjalizuj obiekt strony do obsługi ustawień ciasteczek (Page Object)
