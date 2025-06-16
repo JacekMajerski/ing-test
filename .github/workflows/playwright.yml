@@ -25,7 +25,7 @@ jobs:
       # Upload artefaktów tylko jeśli test się nie powiódł
       - name: Upload test artifacts if failed
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-artifacts-${{ matrix.browser }}
           path: |
