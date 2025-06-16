@@ -1,31 +1,30 @@
 import pytest
-from playwright.sync_api import expect
+from playwright.sync_api import expect, TimeoutError
 from pages.cookie_settings_page import CookieSettingsPage
 
 def test_accept_analytics_cookie(page):
     page.goto("https://www.ing.pl")
     page.wait_for_load_state("networkidle")
 
-    # debug - screenshot
-    page.screenshot(path="screenshot.png", full_page=True)
-    # Zainicjalizuj obiekt strony do obsługi ustawień ciasteczek (Page Object)
+    # Inicjalizacja strony obsługi ciasteczek
     cookie_settings = CookieSettingsPage(page)
 
-    # Kliknij przycisk „Dostosuj” w banerze cookies
-    cookie_settings.open_custom_settings()
+    try:
+        # Poczekaj na przycisk „Dostosuj” z timeoutem 60s i kliknij
+        page.get_by_role("button", name="Dostosuj").wait_for(timeout=60000)
+        cookie_settings.open_custom_settings(timeout=60000)
+    except TimeoutError as e:
+        # W razie błędu zrób screenshot i zapisz DOM
+        page.screenshot(path="error_screenshot.png", full_page=True)
+        with open("error_dom.html", "w", encoding="utf-8") as f:
+            f.write(page.content())
+        raise e
 
-    # Zaznacz checkbox „Analityczne” i kliknij „Zaakceptuj zaznaczone”
+    # Akceptacja ciasteczek analitycznych
     cookie_settings.accept_analytics_and_confirm()
 
-    # Pobierz wszystkie ciasteczka z bieżącego kontekstu przeglądarki
+    # Pobierz ciasteczka i sprawdź
     cookies = page.context.cookies()
-
-    # Znajdź ciasteczko odpowiedzialne za zgodę na ciasteczka – cookiePolicyGDPR
-    policy_cookie = next((cookie for cookie in cookies if cookie["name"] == "cookiePolicyGDPR"), None)
-
-    # Sprawdź, czy ciasteczko zostało ustawione
+    policy_cookie = next((c for c in cookies if c["name"] == "cookiePolicyGDPR"), None)
     assert policy_cookie is not None, "Brak ciasteczka 'cookiePolicyGDPR'."
-
-    # Sprawdź, czy wartość ciasteczka oznacza akceptację analitycznych (3 = zgody analityczne)
     assert policy_cookie["value"] == "3", f"Oczekiwano 'cookiePolicyGDPR' z wartością '3', otrzymano: {policy_cookie['value']}"
-
