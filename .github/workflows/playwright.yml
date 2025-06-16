@@ -15,11 +15,11 @@ jobs:
           python-version: '3.10'
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps
-      - name: Run all browser tests with HTML report
+      - name: Run Playwright tests with HTML report
         env:
           PYTHONPATH: .
-        run: pytest tests/test_cookie_consent.py --html=report.html --self-contained-html
-      - name: Upload test artifacts (report + błędy)
+        run: pytest --html=report.html --self-contained-html
+      - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-artifacts
