@@ -17,7 +17,14 @@ def headed_mode(pytestconfig):
 def page(browser_name, headed_mode):
     with sync_playwright() as p:
         browser = getattr(p, browser_name).launch(headless=not headed_mode)
-        context = browser.new_context()
+        context = browser.new_context(
+            storage_state=None,  # brak sesji
+            viewport={'width': 1280, 'height': 720},
+            ignore_https_errors=True,
+        )
+        # Czyścimy kontekst
+        context.clear_cookies()
+        context.clear_permissions()
         page = context.new_page()
         yield page
         context.close()
