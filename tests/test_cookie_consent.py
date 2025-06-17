@@ -1,42 +1,31 @@
-from playwright.sync_api import sync_playwright, expect
+import pytest
+from playwright.sync_api import expect
 from pages.cookie_settings_page import CookieSettingsPage
-import random, requests
 
-def get_poland_proxies():
-    url = "https://api.proxyscrape.com/v2/?request=getproxies&protocol=http&country=PL&timeout=5000&anonymity=elite"
-    resp = requests.get(url, timeout=10)
-    return [p.strip() for p in resp.text.splitlines() if p.strip()]
+def test_accept_analytics_cookie(page):
+    page.goto("https://www.ing.pl")
+    # Otwórz stronę główną ING
+    page.context.clear_cookies()
+    page.reload()
+    page.goto("https://www.ing.pl")
 
-def test_anty_antybot_with_proxy():
-    proxies = get_poland_proxies()
-    proxy = random.choice(proxies) if proxies else None
+    # Zainicjalizuj obiekt strony do obsługi ustawień ciasteczek (Page Object)
+    cookie_settings = CookieSettingsPage(page)
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=False,
-            proxy={"server": f"http://{proxy}"} if proxy else None,
-        )
-        context = browser.new_context(
-            viewport={"width": 1366, "height": 768},
-            locale="pl-PL",
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
-            timezone_id="Europe/Warsaw",
-            geolocation={"longitude": 21.0, "latitude": 52.2},
-            permissions=["geolocation"],
-        )
+    # Kliknij przycisk „Dostosuj” w banerze cookies
+    cookie_settings.open_custom_settings()
 
-        context.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', {get:()=>undefined});
-            Object.defineProperty(navigator, 'plugins', {get:()=>[1,2,3]});
-            Object.defineProperty(navigator, 'languages', {get:()=>['pl-PL','pl']});
-        """)
+    # Zaznacz checkbox „Analityczne” i kliknij „Zaakceptuj zaznaczone”
+    cookie_settings.accept_analytics_and_confirm()
 
-        page = context.new_page()
-        page.goto("https://www.ing.pl", timeout=60000)
-        page.wait_for_timeout(5000)
-        page.mouse.move(100, 100)
-        page.mouse.move(300, 200)
-        expect(page.get_by_role("button", name="Dostosuj")).to_be_visible(timeout=10000)
-        CookieSettingsPage(page).open_custom_settings()
+    # Pobierz wszystkie ciasteczka z bieżącego kontekstu przeglądarki
+    cookies = page.context.cookies()
 
-        browser.close()
+    # Znajdź ciasteczko odpowiedzialne za zgodę na ciasteczka – cookiePolicyGDPR
+    policy_cookie = next((cookie for cookie in cookies if cookie["name"] == "cookiePolicyGDPR"), None)
+
+    # Sprawdź, czy ciasteczko zostało ustawione
+    assert policy_cookie is not None, "Brak ciasteczka 'cookiePolicyGDPR'."
+
+    # Sprawdź, czy wartość ciasteczka oznacza akceptację analitycznych (3 = zgody analityczne)
+    assert policy_cookie["value"] == "3", f"Oczekiwano 'cookiePolicyGDPR' z wartością '3', otrzymano: {policy_cookie['value']}"

@@ -1,34 +1,47 @@
 name: Playwright Tests ING
+
 on: [push, pull_request, workflow_dispatch]
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy: { matrix: { browser: [chromium] } }
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with: { python-version: '3.10' }
-    - run: pip install -r requirements.txt
-    - run: playwright install --with-deps
-    - name: Install xvfb
-      run: sudo apt-get install -y xvfb
-    - name: Run tests headful
-      env: { PYTHONPATH: '.' }
-      run: |
-        xvfb-run --auto-servernum -- \
-          pytest tests/test_cookie_consent.py \
-            --mybrowser=${{ matrix.browser }} \
-            --isheaded=true \
-            --html=report_${{ matrix.browser }}.html \
-            --self-contained-html
-    - name: Upload artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-artifacts-${{ matrix.browser }}
-        path: |
-          error_screenshot.png
-          error_dom.html
-          debug_screenshot.png
-          debug_dom.html
-          report_${{ matrix.browser }}.html
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - run: pip install -r requirements.txt
+
+      - run: playwright install --with-deps
+
+      - name: Install xvfb
+        run: sudo apt-get install -y xvfb
+
+      - name: Run tests in ${{ matrix.browser }}
+        env:
+          PYTHONPATH: '.'
+        run: |
+          xvfb-run --auto-servernum -- \
+            pytest tests/test_cookie_consent.py \
+              --mybrowser=${{ matrix.browser }} \
+              --isheaded=true \
+              --html=report_${{ matrix.browser }}.html \
+              --self-contained-html
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts-${{ matrix.browser }}
+          path: |
+            error_screenshot.png
+            error_dom.html
+            debug_screenshot.png
+            debug_dom.html
+            report_${{ matrix.browser }}.html
