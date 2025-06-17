@@ -13,6 +13,12 @@ playwright install
 
 ```bash
 pytest tests/test_cookie_consent.py
+## 🧪 Uruchomienie testów we wszystkich przeglądarkach
+
+W systemie Windows możesz użyć gotowego skryptu `run_all_browsers.bat`, który uruchamia testy w Chromium, Firefox i WebKit:
+
+```bash
+run_all_browsers.bat
 ```
 
 ## ✅ Co testujemy?
@@ -25,4 +31,4 @@ pytest tests/test_cookie_consent.py
 
 ## 🎁 Bonus: CI z testem w wielu przeglądarkach
 
-W `.github/workflows/playwright.yml` zawarty jest pipeline GitHub Actions, który uruchamia testy w przeglądarkach Chromium, Firefox i WebKit.
+W `.github/workflows/playwright.yml` zawarty jest pipeline GitHub Actions, który uruchamia testy w przeglądarkach Chromium, Firefox i WebKit. Jest też obsługa artefaktów, niestety testy nie działają - najprawdopodobniej należałoby ustawić jakieś odpowiednie proxy. Przykładowy run wraz z raportami, gdzie na próbę dodałem test innej domeny można znaleźć na https://github.com/JacekMajerski/ing-test/actions/runs/15707602420
