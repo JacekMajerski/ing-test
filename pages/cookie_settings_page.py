@@ -11,5 +11,6 @@ class CookieSettingsPage:
         self.page.get_by_role("button", name="Zaakceptuj zaznaczone").click()
 
     def open_custom_settings(self):
-        self.page.get_by_role("button", name="Dostosuj").wait_for(timeout=60000)
-        self.page.get_by_role("button", name="Dostosuj").click()
+        customize_button = self.page.get_by_role("button", name="Dostosuj")
+        customize_button.wait_for(timeout=60000)
+        customize_button.click()
