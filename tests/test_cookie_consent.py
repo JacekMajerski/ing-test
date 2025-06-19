@@ -1,9 +1,12 @@
 import pytest
-from playwright.sync_api import expect
+import logging
+from playwright.sync_api import Page, expect
 from pages.cookie_settings_page import CookieSettingsPage
 
-def test_accept_analytics_cookie(page):
-    page.goto("https://www.ing.pl")
+
+def test_accept_analytics_cookie(page: Page, base_url: str):
+    #hop na strone główną ING
+    page.goto(base_url)
 
     # Zainicjalizuj obiekt strony do obsługi ustawień ciasteczek (Page Object)
     cookie_settings = CookieSettingsPage(page)
@@ -25,3 +28,6 @@ def test_accept_analytics_cookie(page):
 
     # Sprawdź, czy wartość ciasteczka oznacza akceptację analitycznych (3 = zgody analityczne)
     assert policy_cookie["value"] == "3", f"Oczekiwano 'cookiePolicyGDPR' z wartością '3', otrzymano: {policy_cookie['value']}"
+
+    # Jesli asercja skonczyla sie sukcesem - wyloguj komunikat
+    logging.info(f'Ustawiono prawidłową wartość ciasteczka: {policy_cookie["value"]}')
